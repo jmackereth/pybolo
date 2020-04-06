@@ -96,9 +96,21 @@ def run_bc():
         process = subprocess.run(['./bcall'],
                      stdout=subprocess.PIPE,
                      stderr=subprocess.PIPE)
-        
 
-
-def read_output():
+def read_output(filter_set='GaiaDR2'):
+    inv_sys = {v: k for k, v in sys_dict.items()}
+    inv_filt = {v: k for k, v in filter_dict.items()}
+    filters = sets_dict[filter_set][1:]
+    nfil = len(filters)
+    output_dtype = [('ID', '<U18'),
+                    ('LOGG', float),
+                    ('FE_H', float),
+                    ('TEFF', float),
+                    ('EBV', float)]
+    for i in range(5):
+        if i < nfil:
+            output_dtype.append(('BC_'+inv_filt[filters[i]], float))
+        else:
+            output_dtype.append(('BC_'+str(i), float))
     outfile = os.path.join(_BOLOPATH,'BCcodes','output.file.all')
-    return np.genfromtxt(outfile,names=True,dtype=None)
+    return np.genfromtxt(outfile,dtype=output_dtype, skip_header=1)
